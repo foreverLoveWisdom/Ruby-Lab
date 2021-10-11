@@ -1,32 +1,21 @@
 module ActiveRecord
   class Schema
-    def self.define(_version)
-      puts "Self is: #{inspect}"
-      yield
-      # instance_eval(&block)
+    def self.define(_version, &block)
+      puts "Block is: #{block}"
+      instance_eval(&block)
     end
 
-    def self.create_table(table_name, options = {})
+    def self.create_table(table_name, options = {}, &block)
       t = Table.new(table_name, options)
-      puts "t is: #{t.class}"
-      yield(t)
+      t.instance_eval(&block)
     end
   end
 end
 
 class Table
-  class << self
-    def own_methods
-      instance_methods - superclass.instance_methods
-    end
-  end
   def initialize(name, options)
-    @name = name
+    @name    = name
     @options = options
-  end
-
-  def string(value)
-    puts "Creating column of type string named #{value}"
   end
 
   def integer(value)
@@ -36,10 +25,15 @@ class Table
   def datetime(value)
     puts "Creating column of type datetime named #{value}"
   end
+
+  def string(value)
+    puts "Creating column of type string named #{value}"
+  end
 end
 
-ActiveRecord::Schema.define(version: 20_130_315_230_455) do
-  puts "Self is: #{inspect}"
+ActiveRecord::Schema.define(version: 20_130_315_230_445) do
+  puts "Self inside first block is: #{inspect}"
+
   create_table 'microposts', force: true do |t|
     t.string 'content'
     t.integer 'user_id'
@@ -47,6 +41,3 @@ ActiveRecord::Schema.define(version: 20_130_315_230_455) do
     t.datetime 'updated_at'
   end
 end
-
-t = Table.new('User', pluralize: true)
-puts t.class.own_methods

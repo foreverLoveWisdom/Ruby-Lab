@@ -1,0 +1,3 @@
+class Lax < Enumerator
+
+end
